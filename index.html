@@ -1049,15 +1049,22 @@
 
         /* ── Register CT input override ── */
         #loginScreen .reg-ct-wrap {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            overflow: hidden;
+            /* overflow DEVE ser visible: o dropdown (#regCTDropdown) é
+               position:absolute DENTRO deste elemento. Se overflow:hidden,
+               o dropdown é clipado e nunca aparece. */
+            overflow: visible;
+            background: transparent;
+            border: none;
+            border-radius: 0;
         }
+        /* Visual de "input" movido para a linha do input, não o wrap */
         #loginScreen .reg-ct-input-row {
             display: flex;
             align-items: center;
             padding: 4px 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
         }
         #loginScreen .reg-ct-icon {
             color: rgba(255,255,255,0.2);
@@ -6805,6 +6812,270 @@
         }
         .stu-mod-checkbox:has(input:checked) .stu-mod-lbl { color: var(--accent); }
 </style>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     DESIGN REFACTOR — v2.0 "Dojo Precision"
+     Override layer: aplicado por cima de todo CSS anterior.
+     Filosofia: dark sólido · gold como linguagem de ação · zero glow
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="design-refactor">
+
+/* ── 1. TOKENS — substituição dos valores responsáveis pelo excesso visual ── */
+:root {
+    /* Superfícies: mais sólidas, menos glass */
+    --bg-card:     #0e0d10;
+    --bg-elevated: #131116;
+    --bg-glass:    rgba(14, 13, 16, 0.80);
+
+    /* Bordas: neutras, não douradas por padrão */
+    --border:        rgba(255, 255, 255, 0.07);
+    --border-accent: rgba(201, 162, 58, 0.22);
+
+    /* Accent dim: menos saturado */
+    --accent-dim: rgba(201, 162, 58, 0.07);
+
+    /* Shadows: leve e direcional — sem glow */
+    --shadow-card: 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.50);
+    --shadow-glow: none;
+
+    /* Texto: contraste melhorado */
+    --text-1: #EDE8DE;
+    --text-2: #9E9589;
+    --text-3: #605A52;
+}
+
+/* ── 2. ATMOSFERA — de 5 gradients para 1 ── */
+body::before {
+    /* Única luz ambiente: vinda de cima, coluna central, ouro quase invisível */
+    background:
+        radial-gradient(ellipse 60% 35% at 50% -5%,
+            rgba(201,162,58,0.055) 0%,
+            transparent 100%) !important;
+}
+
+/* Grain texture removido — era ruído visual desnecessário */
+body::after {
+    display: none !important;
+}
+
+/* ── 3. HEADER — vidro limpo, sem gradientes de borda ── */
+.hdr {
+    background: rgba(6,6,7,0.94) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.4) !important;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .hdr {
+        background: rgba(6,6,7,0.85) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        backdrop-filter: blur(20px) !important;
+    }
+}
+
+.hdr-title {
+    letter-spacing: 1.5px !important;
+    font-size: 13px !important;
+}
+
+/* ── 4. CARDS — superfície opaca, borda neutra ── */
+.card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+
+.card-glow {
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.50) !important;
+    border-color: var(--border-accent) !important;
+}
+
+/* Glass card: mantém blur mas remove excesso de saturação */
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .card-glass {
+        background: rgba(10,9,12,0.65) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        backdrop-filter: blur(16px) !important;
+    }
+}
+
+/* ── 5. BOTÕES — gold sólido, sem explosão de gradiente ── */
+.btn-primary {
+    /* Gradiente sutil: vai de gold claro → gold escuro (direção apenas)
+       Removido: F8E7A1 como pico — era dourado neon */
+    background: linear-gradient(180deg, #D4AF55 0%, #B8902A 100%) !important;
+    color: #0D0B08 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.12) !important;
+}
+.btn-primary:hover {
+    background: linear-gradient(180deg, #DEAD58 0%, #C49A2E 100%) !important;
+    transform: none !important;          /* remove translateY(-2px) */
+    box-shadow: 0 3px 12px rgba(0,0,0,0.35) !important;
+}
+.btn-primary:active {
+    transform: scale(0.97) !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+}
+
+.btn-outline {
+    border-color: rgba(201,162,58,0.22) !important;
+}
+.btn-outline:hover {
+    border-color: rgba(201,162,58,0.45) !important;
+    box-shadow: none !important;
+}
+
+/* ── 6. LOGIN — limpar form card, reduzir letter-spacing ── */
+.form-card {
+    background: rgba(10,9,12,0.80) !important;
+    border: 1px solid rgba(255,255,255,0.07) !important;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.55) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    backdrop-filter: blur(20px) !important;
+    /* FIX: overflow:hidden cortava o dropdown do campo CT (position:absolute
+       não escapa de overflow:hidden em ancestral com position:relative) */
+    overflow: visible !important;
+}
+
+/* Shimmer de borda do form-card — removido */
+.form-card::before {
+    display: none !important;
+}
+
+.form-card-title {
+    letter-spacing: 1.5px !important;   /* era 3px */
+    font-size: 10px !important;
+    color: rgba(201,162,58,0.70) !important;
+    margin-bottom: 22px !important;
+}
+
+.form-label {
+    letter-spacing: 1px !important;     /* era 2px */
+    font-size: 10px !important;
+    color: rgba(255,255,255,0.45) !important;
+}
+
+/* Login input: focus sem glow externo */
+#loginScreen input:focus {
+    border-color: rgba(201,162,58,0.45) !important;
+    background: rgba(201,162,58,0.03) !important;
+    box-shadow: none !important;         /* remove 0 0 20px rgba(...) */
+}
+
+/* Botão vermelho do login: mais limpo */
+.btn-login-primary {
+    background: #B91C1C !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+    letter-spacing: 2px !important;     /* era 3px */
+}
+.btn-login-primary:hover {
+    background: #C91C1C !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.45) !important;
+}
+
+/* Login tab: ativo com vermelho mais sóbrio */
+.login-tab-btn.active {
+    box-shadow: 0 2px 8px rgba(185,28,28,0.30) !important;
+}
+
+/* ── 7. BOTTOM NAV — menos saturação no blur ── */
+.bnav {
+    background: rgba(6,6,7,0.97) !important;
+    border-top: 1px solid rgba(255,255,255,0.05) !important;
+    box-shadow: none !important;
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .bnav {
+        background: rgba(6,6,7,0.92) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        backdrop-filter: blur(20px) !important;
+    }
+}
+
+/* Indicador ativo: linha discreta, sem shadow */
+.bnav-btn.active::before {
+    box-shadow: none !important;
+    background: var(--accent) !important;
+    width: 20px !important;
+    height: 2px !important;
+}
+
+/* ── 8. COMPONENTS — remover glows em estados .selected/.active ── */
+
+/* CT buttons */
+.ct-btn.selected {
+    box-shadow: none !important;
+}
+
+/* Ranking period buttons */
+.rank-period-btn.active {
+    background: var(--accent) !important;
+    color: #0D0B08 !important;
+    box-shadow: none !important;         /* era 0 4px 18px rgba(201,162,58,0.30) */
+}
+
+/* Mode switch */
+.mode-switch-opt.active {
+    box-shadow: none !important;
+}
+.mode-switch-opt.active.admin-active {
+    box-shadow: none !important;
+}
+
+/* ── 9. INPUTS GLOBAIS — focus sem glow externo ── */
+input:focus,
+select:focus {
+    box-shadow: none !important;
+}
+
+/* ── 10. TIPOGRAFIA — hierarquia mais limpa ── */
+.section-title {
+    font-size: 11px !important;
+    letter-spacing: 0.5px !important;   /* era 1px */
+    color: var(--text-3) !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+}
+
+/* Kanji watermark do login — reduzir ainda mais, não compete com conteúdo */
+.login-kanji-bg {
+    -webkit-text-stroke: 1px rgba(201,162,58,0.025) !important;
+}
+
+/* ── 11. AVATAR DO HEADER ── */
+.hdr-avatar {
+    background: rgba(201,162,58,0.12) !important;
+    color: var(--accent) !important;
+    border: 1px solid rgba(201,162,58,0.2) !important;
+}
+
+/* ── 12. HDR USER chip ── */
+.hdr-user {
+    border-color: rgba(201,162,58,0.12) !important;
+    background: rgba(201,162,58,0.05) !important;
+}
+
+/* ── 13. MENSAGENS — mais contidas ── */
+.msg.success {
+    background: rgba(201,162,58,0.06) !important;
+    border-color: rgba(201,162,58,0.15) !important;
+}
+.msg.danger {
+    background: rgba(239,68,68,0.06) !important;
+}
+.msg.warning {
+    background: rgba(245,158,11,0.06) !important;
+}
+
+/* ── 14. FORM INPUTS do APP (fora do login) ── */
+input:focus,
+select:focus,
+textarea:focus {
+    box-shadow: none !important;
+    border-color: rgba(201,162,58,0.40) !important;
+}
+
+</style>
 </head>
 <body>
     <div class="app">
@@ -6939,6 +7210,7 @@
                                                        autocomplete="off"
                                                        oninput="onRegCTInput()"
                                                        onfocus="onRegCTFocus()"
+                                                       onblur="setTimeout(closeRegCTDropdown, 200)"
                                                        onkeydown="onRegCTKeydown(event)">
                                                 <button type="button" class="reg-ct-clear" id="regCTClear" onclick="clearRegCT()" title="Limpar">✕</button>
                                             </div>
@@ -10078,7 +10350,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzut1GM_j7UNFRaf7C8eKLb5-D5d5OphWB4H4Be9Rpge4Klvk7B4Bkaub59URUMaF1hEg/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyV66jBrJvrY8yliHHUxOr-YQOABqA41noQTiWORFRMbh2QIvi11wnI_9_FpsYxOYPqg/exec';
 
         // ===== PWA INSTALL PROMPT =====
         (function() {
@@ -11903,7 +12175,7 @@
         }
 
         function getRegModalidadesSelecionadas() {
-            return 'karate'; // Single-mode: always Karate
+            return ['karate']; // Single-mode: always Karate — retorna ARRAY (join() é chamado no submit)
             /* ORIGINAL CODE BELOW */
             var checks = document.querySelectorAll('#regModalidadesGrid input[name="regMod"]:checked');
             return Array.from(checks).map(function(c){ return c.value; });
@@ -12112,7 +12384,10 @@
                     showMessage('registerMessage', data.message || 'Erro ao cadastrar', 'danger');
                 }
             } catch (err) {
-                showMessage('registerMessage', 'Erro de conexão', 'danger');
+                // Mostra o erro real — ajuda a distinguir TypeError de falha de rede
+                var msg = err && err.message ? 'Erro: ' + err.message : 'Erro de conexão';
+                showMessage('registerMessage', msg, 'danger');
+                console.error('handleRegister error:', err);
             }
         }
 
